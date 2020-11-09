@@ -1,32 +1,65 @@
 <template>
   <div id="app">
+    <Loader :visible="loading" />
     <div id="nav">
-      <router-link to="/">Home</router-link> |
-      <router-link to="/about">About</router-link>
+      <div class="logo">
+        <router-link to="/">
+          <img src="/logo.png" alt="" />
+          Asteroid Explorer
+        </router-link>
+      </div>
+
+      <ul class="links">
+        <li>
+          <router-link to="/">Explore</router-link>
+        </li>
+        <li>
+          <router-link to="/feed">Feed</router-link>
+        </li>
+        <li>
+          <router-link to="/search">Search</router-link>
+        </li>
+        <li v-if="user.loggedIn === false">
+          <router-link to="/login">Login</router-link>
+        </li>
+        <li v-if="user.loggedIn === true">
+          <router-link to="/favs">Favourites</router-link>
+        </li>
+        <li v-if="user.loggedIn === true">
+          <a href="#" v-on:click="logout()">Logout</a>
+        </li>
+      </ul>
     </div>
-    <router-view />
+    <div class="content">
+      <router-view />
+    </div>
   </div>
 </template>
 
-<style>
-#app {
-  font-family: Avenir, Helvetica, Arial, sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  text-align: center;
-  color: #2c3e50;
-}
+<script>
+import { mapState } from "vuex";
+import Loader from "@/components/loader";
+import { mapGetters } from "vuex";
+import { Component, Vue } from "vue-property-decorator";
+import firebase from "./services/firebase";
 
-#nav {
-  padding: 30px;
+@Component({
+  name: "app",
+  components: { Loader },
+  computed: {
+    ...mapState("loader", ["loading"]),
+    ...mapGetters({
+      user: "user"
+    })
+  }
+})
+export default class App extends Vue {
+  async logout() {
+    await firebase.auth().signOut();
+    window.location.href = "/login";
+  }
 }
+</script>
 
-#nav a {
-  font-weight: bold;
-  color: #2c3e50;
-}
-
-#nav a.router-link-exact-active {
-  color: #42b983;
-}
-</style>
+<style src="firebaseui/dist/firebaseui.css"></style>
+<style src="./assets/css/app.css"></style>
